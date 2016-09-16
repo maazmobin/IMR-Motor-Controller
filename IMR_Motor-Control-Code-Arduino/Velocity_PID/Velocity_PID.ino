@@ -40,7 +40,7 @@ MusafirMotor motor2(7, 6, 9);
 String inputString = "";         // a string to hold incoming data
 boolean stringComplete = false;  // whether the string is complete
 unsigned long prevSpeedCheck = 0;
-const long speedInterval = 1000;    //10ms
+const long speedInterval = 10;    //10ms
 boolean DEBUG=1;
 #define MAGICADDRESS 42         // randomly defined eeprom 42 address
 
@@ -53,11 +53,11 @@ struct motorParams {
 };
 motorParams motorParam1;
 motorParams motorParam2;
-
+long encPrev1 = 0, encPrev2 = 0;
 long encDiff1 = 0, encDiff2 = 0;
 int vel1 = 0, vel2 = 0;
 
-const int wheel_diameter = 89;    //milimeters
+const int wheel_diameter = 91.5;    //milimeters
 const float wheel_radius = wheel_diameter/2.0;
 const float circumference = (float)wheel_radius*M_PI;   //S=pi*r
 
@@ -303,12 +303,18 @@ if (stringComplete) {
   unsigned long currentMillis = millis();
   if (currentMillis - prevSpeedCheck >= speedInterval) {
     prevSpeedCheck = currentMillis;
-    
- Serial.print("Encoder 2 ");  
-  Serial.println(enc2.read());
+int sp1,sp2;
+    encDiff1=enc1.read()-encPrev1;
+    encDiff2=enc2.read()-encPrev2;
+    encPrev1=enc1.read();
+    encPrev2=enc2.read();
+    sp1=encDiff1*9.58186;    //(pi*r)/(1500*10ms) r= 91.5/2
+    sp2=encDiff2*9.58186;    
+ Serial.print("Velocity 2 ");  
+  Serial.println(sp2);
   
-  Serial.print("Encoder 1 ");
-  Serial.println(enc1.read());
+  Serial.print("velocity 1 ");
+  Serial.println(sp1);
 
   Serial.println(prevSpeedCheck);
 
@@ -324,6 +330,7 @@ if (stringComplete) {
     //motor1.setPWM(pid);
     //Serial.println(velocity);
     // put code here for control of the second velocity as well.
+   
   }  
 }
 void serialEvent() 
