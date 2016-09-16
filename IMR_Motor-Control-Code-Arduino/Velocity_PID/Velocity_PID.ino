@@ -61,17 +61,12 @@ const int wheel_diameter = 91.5;    //milimeters
 const float wheel_radius = wheel_diameter/2.0;
 const float circumference = (float)wheel_radius*M_PI;   //S=pi*r
 
-/*float velocity_time = 10;  //  time between velocity calculations
-//  PID Parameters
-float kp = 7.0, ki = 2.0, kd = 0.5;  //  tuning parameter
-float error = 0, sum_error = 0, last_error = 0; 
-float pid = 0;  //  pid computation result
-int set_point = 25;  //  desired velocity in terms of cm/s
-int dt = velocity_time;
-float change_distance = 0;  //  do not alter this line
-float new_time = 0, old_time = 0, change_time = 1;  //  do not alter this line
-float velocity = 0;
-*/
+boolean pidActive= false;
+float error1 = 0, sum_error1 = 0, last_error1 = 0; 
+float error2 = 0, sum_error2 = 0, last_error2 = 0; 
+float pid1 = 0;  //  pid computation result
+float pid2 = 0;
+
 void setup() 
 {
   inputString.reserve(100);
@@ -84,18 +79,18 @@ void setup()
   int checkEEPROM=0;
   EEPROM.get(0, checkEEPROM);
   if(checkEEPROM==MAGICADDRESS){
-                                     if(DEBUG)
-                                     {
-                                      Serial.println("Reading from EEPROM :)");
-                                      }
+  if(DEBUG)
+  {
+  Serial.println("Reading from EEPROM :)");
+  }
     EEPROM.get((const int)MAGICADDRESS, motorParam1);   //  (address , return space to save data)
     EEPROM.get((const int)(MAGICADDRESS+sizeof(motorParams)), motorParam2);
   }
   else{ //set default values
-                                    if(DEBUG)
-                                    {
-                                      Serial.println("Setting Default Value :)");
-                                      }
+  if(DEBUG)
+  {
+  Serial.println("Setting Default Value :)");
+  }
     EEPROM.put(0, MAGICADDRESS);
     motorParam1.minPWM = 10;
     motorParam1.maxPWM = 225;
@@ -176,6 +171,7 @@ if (stringComplete) {
          Serial.println(vel2);
         }         
         Serial.println('d');
+        pidActive= true;
         break;
       case 'H':
         // COMMAND:  H,P,I,D,1/2\n
@@ -243,6 +239,7 @@ if (stringComplete) {
         Serial.println(val2);
         }
         Serial.println('l');
+        pidActive= false;
         break;
       case 'R':
         // COMMAND:  R\n
@@ -308,20 +305,29 @@ int sp1,sp2;
     encDiff2=enc2.read()-encPrev2;
     encPrev1=enc1.read();
     encPrev2=enc2.read();
-    sp1=encDiff1*9.58186;    //(pi*r)/(1500*10ms) r= 91.5/2
-    sp2=encDiff2*9.58186;    
- Serial.print("Velocity 2 ");  
+    sp1=abs(encDiff1*9.58186);    //(pi*r)/(1500*10ms) r= 91.5/2
+    sp2=abs(encDiff2*9.58186); 
+    if(pidActive)
+    {
+      error1=vel1-sp1;
+      error2=vel2-sp2;
+     sum_error1 += error1;
+     sum_error2 += error2;
+    pid1 = motorParam1.kp*error1+ motorParam1.ki*sum_error1+ motorParam1.kd*(error1-last_error1)/0.01; 
+    pid2 = motorParam2.kp*error2+ motorParam2.ki*sum_error2+ motorParam2.kd*(error2-last_error2)/0.01; 
+    error1=last_error1;
+    error2=last_error2;
+    motor1.setPWM(pid1);
+    motor2.setPWM(pid2);
+    }  Serial.print("Velocity 2 ");  
   Serial.println(sp2);
   
   Serial.print("velocity 1 ");
   Serial.println(sp1);
 
-  Serial.println(prevSpeedCheck);
-
-   // enc1Diff = enc1.read() - enc1Diff;
-    
-
-    //enc1Diff = enc1.read();
+ Serial.println("  ---  --- ");
+//motor1.setPWM(val1);
+//motor2.setPWM(val2);
 
     // use formula on page 25 of khepera IV manual for speed calculation
     // need 
