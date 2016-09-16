@@ -40,7 +40,7 @@ MusafirMotor motor2(7, 6, 9);
 String inputString = "";         // a string to hold incoming data
 boolean stringComplete = false;  // whether the string is complete
 unsigned long prevSpeedCheck = 0;
-const long speedInterval = 100;    //10ms
+const long speedInterval = 1000;    //10ms
 boolean DEBUG=1;
 #define MAGICADDRESS 42         // randomly defined eeprom 42 address
 
@@ -119,33 +119,33 @@ void setup()
   motor2.setMaxPWM(motorParam2.maxPWM);
 
   resetEncoders();
-                                      if(DEBUG)
-                                      {
-                                        Serial.println("motorParam1");
-                                         Serial.print("minPWM ");
-                                        Serial.println(motorParam1.minPWM);
-                                        Serial.print("maxPWM ");
-                                        Serial.println(motorParam1.maxPWM);
-                                        Serial.print("kp ");
-                                        Serial.println(motorParam1.kp);
-                                        Serial.print("ki ");
-                                        Serial.println(motorParam1.ki);
-                                        Serial.print("kd ");
-                                        Serial.println(motorParam1.kd);    
-                                    
-                                      Serial.println("motorParam2");
-                                         Serial.print("minPWM ");
-                                        Serial.println(motorParam2.minPWM);
-                                        Serial.print("maxPWM ");
-                                        Serial.println(motorParam2.maxPWM);
-                                        Serial.print("kp ");
-                                        Serial.println(motorParam2.kp);
-                                        Serial.print("ki ");
-                                        Serial.println(motorParam2.ki);
-                                        Serial.print("kd ");
-                                        Serial.println(motorParam2.kd);  
-                                        Serial.println("-----X--------X--------X--------X-----");
-                                        } 
+    if(DEBUG)
+    {
+    Serial.println("motorParam1");                                         
+    Serial.print("minPWM ");
+    Serial.println(motorParam1.minPWM);
+    Serial.print("maxPWM ");
+    Serial.println(motorParam1.maxPWM);
+    Serial.print("kp ");
+    Serial.println(motorParam1.kp);
+    Serial.print("ki ");
+    Serial.println(motorParam1.ki);
+    Serial.print("kd ");
+    Serial.println(motorParam1.kd);    
+                                        
+    Serial.println("motorParam2");
+    Serial.print("minPWM ");
+    Serial.println(motorParam2.minPWM);
+    Serial.print("maxPWM ");
+    Serial.println(motorParam2.maxPWM);
+    Serial.print("kp ");
+    Serial.println(motorParam2.kp);
+    Serial.print("ki ");
+    Serial.println(motorParam2.ki);
+    Serial.print("kd ");
+    Serial.println(motorParam2.kd);  
+    Serial.println("-----X--------X--------X--------X-----");
+    } 
                            
 }
 
@@ -168,13 +168,13 @@ if (stringComplete) {
         else         motor2.setDir(FORWARD);
         vel1 = val1;
         vel2 = val2;
-                                                              if(DEBUG)
-                                                            {
-                                                              Serial.print("Velocity 1 ");
-                                                              Serial.println(vel1);
-                                                              Serial.print("Velocity 2 ");
-                                                              Serial.println(vel2);
-                                                              }         
+         if(DEBUG)
+        {
+         Serial.print("Velocity 1 ");
+         Serial.println(vel1);
+         Serial.print("Velocity 2 ");
+         Serial.println(vel2);
+        }         
         Serial.println('d');
         break;
       case 'H':
@@ -196,32 +196,31 @@ if (stringComplete) {
           motorParam1.ki = i;
           motorParam1.kd = d;
           EEPROM.put((const int)MAGICADDRESS, motorParam1);
-                                                             if(DEBUG)
-                                                            {
-                                                              Serial.println("MotorParam1 ");
-                                                              Serial.print("kp ");
-                                                              Serial.println(motorParam1.kp);
-                                                              Serial.print("ki ");
-                                                              Serial.println(motorParam1.ki);
-                                                              Serial.print("kd ");
-                                                              Serial.println(motorParam1.kd);
-                                                              }     
+        if(DEBUG)
+        {
+         Serial.println("MotorParam1 ");
+         Serial.print("kp ");
+         Serial.println(motorParam1.kp);
+         Serial.print("ki ");
+         Serial.println(motorParam1.ki);
+         Serial.print("kd ");
+         Serial.println(motorParam1.kd);                                                     }     
         }
         else if(val1==2){
           motorParam2.kp = p;
           motorParam2.ki = i;
           motorParam2.kd = d;
           EEPROM.put((const int)(MAGICADDRESS+sizeof(motorParams)), motorParam2);
-                                                            if(DEBUG)
-                                                            {
-                                                              Serial.println("MotorParam2 ");
-                                                              Serial.print("kp ");
-                                                              Serial.println(motorParam2.kp);
-                                                              Serial.print("ki ");
-                                                              Serial.println(motorParam2.ki);
-                                                              Serial.print("kd ");
-                                                              Serial.println(motorParam2.kd);
-                                                              }    
+          if(DEBUG)
+          {
+          Serial.println("MotorParam2 ");
+          Serial.print("kp ");
+          Serial.println(motorParam2.kp);
+          Serial.print("ki ");
+          Serial.println(motorParam2.ki);
+          Serial.print("kd ");
+          Serial.println(motorParam2.kd);
+          }    
         }
         Serial.println('h');
         break;
@@ -238,6 +237,11 @@ if (stringComplete) {
         else         motor2.setDir(FORWARD);
         motor1.setPWM(val1);
         motor2.setPWM(val2);
+        if(DEBUG)
+        {
+        Serial.println(val1);        
+        Serial.println(val2);
+        }
         Serial.println('l');
         break;
       case 'R':
@@ -267,30 +271,29 @@ if (stringComplete) {
         { motorParam1.maxPWM =max_pwm;
           motorParam1.minPWM =min_pwm;
           EEPROM.put((const int)MAGICADDRESS, motorParam1);
-                                                             if(DEBUG)
-                                                            {
-                                                              Serial.println("MotorParam1 ");
-                                                              Serial.print("Max ");
-                                                              Serial.println(motorParam1.maxPWM);
-                                                              Serial.print("Min ");
-                                                              Serial.println(motorParam1.minPWM);
-                                                              }  
+        if(DEBUG)
+        {
+        Serial.println("MotorParam1 ");
+        Serial.print("Max ");
+        Serial.println(motorParam1.maxPWM);
+        Serial.print("Min ");
+        Serial.println(motorParam1.minPWM);
+         }  
           }
         else if(val1==2)
         {
           motorParam2.maxPWM =max_pwm;
           motorParam2.minPWM =min_pwm;
           EEPROM.put((const int)(MAGICADDRESS+sizeof(motorParams)), motorParam2);
-                                                            if(DEBUG)
-                                                            {
-                                                              Serial.println("MotorParam2 ");
-                                                              Serial.print("Max ");
-                                                              Serial.println(motorParam2.maxPWM);
-                                                              Serial.print("Min ");
-                                                              Serial.println(motorParam2.minPWM);
-                                                              }  
+        if(DEBUG)
+        {
+        Serial.println("MotorParam2 ");
+        Serial.print("Max ");
+        Serial.println(motorParam2.maxPWM);
+        Serial.print("Min ");
+        Serial.println(motorParam2.minPWM);                                                 }  
           }                                                 
-          Serial.println('m');
+        Serial.println('m');
         break;
     }
     inputString = "";
@@ -301,13 +304,13 @@ if (stringComplete) {
   if (currentMillis - prevSpeedCheck >= speedInterval) {
     prevSpeedCheck = currentMillis;
     
- /* Serial.print("Encoder 2 ");  
+ Serial.print("Encoder 2 ");  
   Serial.println(enc2.read());
   
   Serial.print("Encoder 1 ");
   Serial.println(enc1.read());
 
-  Serial.println(prevSpeedCheck);*/
+  Serial.println(prevSpeedCheck);
 
    // enc1Diff = enc1.read() - enc1Diff;
     
