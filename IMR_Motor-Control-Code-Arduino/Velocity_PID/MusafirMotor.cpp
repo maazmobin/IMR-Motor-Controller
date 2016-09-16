@@ -19,6 +19,7 @@ MusafirMotor::MusafirMotor(uint8_t ch1_pin, uint8_t ch2_pin, uint8_t pwm_pin) {
 	pinMode(ch1_pin, OUTPUT);
 	pinMode(ch2_pin, OUTPUT);
 	pinMode(pwm_pin, OUTPUT);
+  setDir(FORWARD);
 }
 
 
@@ -43,7 +44,7 @@ unsigned int MusafirMotor::getMaxPWM() {
 }
 
 void MusafirMotor::setPWM(uint8_t pwm) {
-	_pwm = pwm;
+	_pwm = constrain(pwm, _minPWM, _maxPWM);
 	analogWrite(_pwm_pin,_pwm);
 }
 
