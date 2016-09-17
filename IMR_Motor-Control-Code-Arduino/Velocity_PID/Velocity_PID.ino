@@ -41,7 +41,8 @@ String inputString = "";         // a string to hold incoming data
 boolean stringComplete = false;  // whether the string is complete
 unsigned long prevSpeedCheck = 0;
 const long speedInterval = 10;    //10ms
-boolean DEBUG=1;
+
+#define DEBUG 1
 #define MAGICADDRESS 42         // randomly defined eeprom 42 address
 
 struct motorParams {
@@ -61,17 +62,6 @@ const int wheel_diameter = 91.5;    //milimeters
 const float wheel_radius = wheel_diameter/2.0;
 const float circumference = (float)wheel_radius*M_PI;   //S=pi*r
 
-/*float velocity_time = 10;  //  time between velocity calculations
-//  PID Parameters
-float kp = 7.0, ki = 2.0, kd = 0.5;  //  tuning parameter
-float error = 0, sum_error = 0, last_error = 0; 
-float pid = 0;  //  pid computation result
-int set_point = 25;  //  desired velocity in terms of cm/s
-int dt = velocity_time;
-float change_distance = 0;  //  do not alter this line
-float new_time = 0, old_time = 0, change_time = 1;  //  do not alter this line
-float velocity = 0;
-*/
 void setup() 
 {
   inputString.reserve(100);
@@ -84,18 +74,13 @@ void setup()
   int checkEEPROM=0;
   EEPROM.get(0, checkEEPROM);
   if(checkEEPROM==MAGICADDRESS){
-                                     if(DEBUG)
-                                     {
-                                      Serial.println("Reading from EEPROM :)");
-                                      }
-    EEPROM.get((const int)MAGICADDRESS, motorParam1);   //  (address , return space to save data)
+    if(DEBUG) Serial.println("Reading from EEPROM.");
+    EEPROM.get((const int)MAGICADDRESS, motorParam1);   //(address, data)
     EEPROM.get((const int)(MAGICADDRESS+sizeof(motorParams)), motorParam2);
   }
-  else{ //set default values
-                                    if(DEBUG)
-                                    {
-                                      Serial.println("Setting Default Value :)");
-                                      }
+  else{
+    //set default values
+    if(DEBUG) Serial.println("Setting Default Values.");
     EEPROM.put(0, MAGICADDRESS);
     motorParam1.minPWM = 10;
     motorParam1.maxPWM = 225;
@@ -119,8 +104,7 @@ void setup()
   motor2.setMaxPWM(motorParam2.maxPWM);
 
   resetEncoders();
-    if(DEBUG)
-    {
+  if(DEBUG){
     Serial.println("motorParam1");                                         
     Serial.print("minPWM ");
     Serial.println(motorParam1.minPWM);
@@ -145,13 +129,11 @@ void setup()
     Serial.print("kd ");
     Serial.println(motorParam2.kd);  
     Serial.println("-----X--------X--------X--------X-----");
-    } 
-                           
+  }
 }
 
-void loop() 
-{
-if (stringComplete) {
+void loop() {
+  if (stringComplete) {
     int c1=1, c2=1;
     int val1=0, val2=0;
     switch(inputString[0]){
@@ -168,12 +150,11 @@ if (stringComplete) {
         else         motor2.setDir(FORWARD);
         vel1 = val1;
         vel2 = val2;
-         if(DEBUG)
-        {
-         Serial.print("Velocity 1 ");
-         Serial.println(vel1);
-         Serial.print("Velocity 2 ");
-         Serial.println(vel2);
+        if(DEBUG){
+          Serial.print("Velocity 1 ");
+          Serial.println(vel1);
+          Serial.print("Velocity 2 ");
+          Serial.println(vel2);
         }         
         Serial.println('d');
         break;
@@ -196,32 +177,21 @@ if (stringComplete) {
           motorParam1.ki = i;
           motorParam1.kd = d;
           EEPROM.put((const int)MAGICADDRESS, motorParam1);
-        if(DEBUG)
-        {
-         Serial.println("MotorParam1 ");
-         Serial.print("kp ");
-         Serial.println(motorParam1.kp);
-         Serial.print("ki ");
-         Serial.println(motorParam1.ki);
-         Serial.print("kd ");
-         Serial.println(motorParam1.kd);                                                     }     
+          if(DEBUG) Serial.println("MotorParam1 ");
         }
         else if(val1==2){
           motorParam2.kp = p;
           motorParam2.ki = i;
           motorParam2.kd = d;
           EEPROM.put((const int)(MAGICADDRESS+sizeof(motorParams)), motorParam2);
-          if(DEBUG)
-          {
-          Serial.println("MotorParam2 ");
-          Serial.print("kp ");
-          Serial.println(motorParam2.kp);
-          Serial.print("ki ");
-          Serial.println(motorParam2.ki);
-          Serial.print("kd ");
-          Serial.println(motorParam2.kd);
-          }    
+          if(DEBUG) Serial.println("MotorParam2 ");
         }
+        Serial.print("kp: ");
+        Serial.println(p);
+        Serial.print("ki: ");
+        Serial.println(i);
+        Serial.print("kd: ");
+        Serial.println(d);
         Serial.println('h');
         break;
       case 'L':
@@ -237,10 +207,9 @@ if (stringComplete) {
         else         motor2.setDir(FORWARD);
         motor1.setPWM(val1);
         motor2.setPWM(val2);
-        if(DEBUG)
-        {
-        Serial.println(val1);        
-        Serial.println(val2);
+        if(DEBUG){
+          Serial.print("PWM1: "); Serial.println(val1);        
+          Serial.print("PWM2: "); Serial.println(val2);
         }
         Serial.println('l');
         break;
@@ -267,32 +236,25 @@ if (stringComplete) {
         min_pwm= inputString.substring(c1,c2).toInt();
         c1=c2+1;
         val1= inputString.substring(c1).toInt();
-        if(val1==1)
-        { motorParam1.maxPWM =max_pwm;
+        if(val1==1){
+          motorParam1.maxPWM =max_pwm;
           motorParam1.minPWM =min_pwm;
           EEPROM.put((const int)MAGICADDRESS, motorParam1);
-        if(DEBUG)
-        {
-        Serial.println("MotorParam1 ");
-        Serial.print("Max ");
-        Serial.println(motorParam1.maxPWM);
-        Serial.print("Min ");
-        Serial.println(motorParam1.minPWM);
-         }  
-          }
+          if(DEBUG) Serial.println("MotorParam1 ");
+        }
         else if(val1==2)
         {
           motorParam2.maxPWM =max_pwm;
           motorParam2.minPWM =min_pwm;
           EEPROM.put((const int)(MAGICADDRESS+sizeof(motorParams)), motorParam2);
-        if(DEBUG)
-        {
-        Serial.println("MotorParam2 ");
-        Serial.print("Max ");
-        Serial.println(motorParam2.maxPWM);
-        Serial.print("Min ");
-        Serial.println(motorParam2.minPWM);                                                 }  
-          }                                                 
+          if(DEBUG) Serial.println("MotorParam2 ");
+        }
+        if(DEBUG){
+          Serial.print("Max: ");
+          Serial.println(max_pwm);
+          Serial.print("Min: ");
+          Serial.println(min_PWM);
+        }
         Serial.println('m');
         break;
     }
@@ -303,35 +265,21 @@ if (stringComplete) {
   unsigned long currentMillis = millis();
   if (currentMillis - prevSpeedCheck >= speedInterval) {
     prevSpeedCheck = currentMillis;
-int sp1,sp2;
+    int sp1,sp2;
     encDiff1=enc1.read()-encPrev1;
     encDiff2=enc2.read()-encPrev2;
-    encPrev1=enc1.read();
-    encPrev2=enc2.read();
-    sp1=encDiff1*9.58186;    //(pi*r)/(1500*10ms) r= 91.5/2
-    sp2=encDiff2*9.58186;    
- Serial.print("Velocity 2 ");  
-  Serial.println(sp2);
-  
-  Serial.print("velocity 1 ");
-  Serial.println(sp1);
-
-  Serial.println(prevSpeedCheck);
-
-   // enc1Diff = enc1.read() - enc1Diff;
-    
-
-    //enc1Diff = enc1.read();
-
-    // use formula on page 25 of khepera IV manual for speed calculation
-    // need 
-    
-  //  velocity = get_velocity_pid();
-    //motor1.setPWM(pid);
-    //Serial.println(velocity);
-    // put code here for control of the second velocity as well.
-   
-  }  
+    encPrev1=encPrev1+encDiff1;
+    encPrev2=encPrev2+encDiff2;
+    // possibly reading enc2.read() may result in LONGER delay
+    // not checked for issues.
+    sp1=(float)encDiff1*9.58186; //(pi*r)/(1500*10ms) r= 91.5/2
+    sp2=(float)encDiff2*9.58186;
+    Serial.print("Velocity 2 ");
+    Serial.println(sp2);
+    Serial.print("velocity 1 ");
+    Serial.println(sp1);
+    Serial.println(prevSpeedCheck);
+  }
 }
 void serialEvent() 
 {
@@ -351,6 +299,30 @@ void resetEncoders(void){
   enc1.write(0);
   enc2.write(0);
 }
+
+
+/*float velocity_time = 10;  //  time between velocity calculations
+//  PID Parameters
+float kp = 7.0, ki = 2.0, kd = 0.5;  //  tuning parameter
+float error = 0, sum_error = 0, last_error = 0; 
+float pid = 0;  //  pid computation result
+int set_point = 25;  //  desired velocity in terms of cm/s
+int dt = velocity_time;
+float change_distance = 0;  //  do not alter this line
+float new_time = 0, old_time = 0, change_time = 1;  //  do not alter this line
+float velocity = 0;
+*/
+
+
+
+// enc1Diff = enc1.read() - enc1Diff;
+//enc1Diff = enc1.read();    
+// use formula on page 25 of khepera IV manual for speed calculation
+//  velocity = get_velocity_pid();
+//motor1.setPWM(pid);
+//Serial.println(velocity);
+// put code here for control of the second velocity as well.
+
 
 /*float get_distance(void)  //  FUNCTION for calculating the Distance after last time...
 {
