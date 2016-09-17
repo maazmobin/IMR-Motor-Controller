@@ -62,15 +62,14 @@ const int wheel_diameter = 91.5;    //milimeters
 const float wheel_radius = wheel_diameter/2.0;
 const float circumference = (float)wheel_radius*M_PI;   //S=pi*r
 
-<<<<<<< HEAD
+
 boolean pidActive= false;
 float error1 = 0, sum_error1 = 0, last_error1 = 0; 
 float error2 = 0, sum_error2 = 0, last_error2 = 0; 
 float pid1 = 0;  //  pid computation result
 float pid2 = 0;
 
-=======
->>>>>>> origin/master
+
 void setup() 
 {
   inputString.reserve(100);
@@ -83,20 +82,6 @@ void setup()
   int checkEEPROM=0;
   EEPROM.get(0, checkEEPROM);
   if(checkEEPROM==MAGICADDRESS){
-<<<<<<< HEAD
-  if(DEBUG)
-  {
-  Serial.println("Reading from EEPROM :)");
-  }
-    EEPROM.get((const int)MAGICADDRESS, motorParam1);   //  (address , return space to save data)
-    EEPROM.get((const int)(MAGICADDRESS+sizeof(motorParams)), motorParam2);
-  }
-  else{ //set default values
-  if(DEBUG)
-  {
-  Serial.println("Setting Default Value :)");
-  }
-=======
     if(DEBUG) Serial.println("Reading from EEPROM.");
     EEPROM.get((const int)MAGICADDRESS, motorParam1);   //(address, data)
     EEPROM.get((const int)(MAGICADDRESS+sizeof(motorParams)), motorParam2);
@@ -104,7 +89,6 @@ void setup()
   else{
     //set default values
     if(DEBUG) Serial.println("Setting Default Values.");
->>>>>>> origin/master
     EEPROM.put(0, MAGICADDRESS);
     motorParam1.minPWM = 10;
     motorParam1.maxPWM = 225;
@@ -230,6 +214,7 @@ void loop() {
         else         motor1.setDir(FORWARD);
         if(val2<0) { motor2.setDir(BACKWARD); val2 = -val2; }
         else         motor2.setDir(FORWARD);
+        pidActive= false;
         motor1.setPWM(val1);
         motor2.setPWM(val2);
         if(DEBUG){
@@ -237,7 +222,6 @@ void loop() {
           Serial.print("PWM2: "); Serial.println(val2);
         }
         Serial.println('l');
-        pidActive= false;
         break;
       case 'R':
         // COMMAND:  R\n
@@ -279,7 +263,7 @@ void loop() {
           Serial.print("Max: ");
           Serial.println(max_pwm);
           Serial.print("Min: ");
-          Serial.println(min_PWM);
+          Serial.println(min_pwm);
         }
         Serial.println('m');
         break;
@@ -294,56 +278,30 @@ void loop() {
     int sp1,sp2;
     encDiff1=enc1.read()-encPrev1;
     encDiff2=enc2.read()-encPrev2;
-<<<<<<< HEAD
-    encPrev1=enc1.read();
-    encPrev2=enc2.read();
-    sp1=abs(encDiff1*9.58186);    //(pi*r)/(1500*10ms) r= 91.5/2
-    sp2=abs(encDiff2*9.58186); 
-    if(pidActive)
-    {
-      error1=vel1-sp1;
-      error2=vel2-sp2;
-     sum_error1 += error1;
-     sum_error2 += error2;
-    pid1 = motorParam1.kp*error1+ motorParam1.ki*sum_error1+ motorParam1.kd*(error1-last_error1)/0.01; 
-    pid2 = motorParam2.kp*error2+ motorParam2.ki*sum_error2+ motorParam2.kd*(error2-last_error2)/0.01; 
-    error1=last_error1;
-    error2=last_error2;
-    motor1.setPWM(pid1);
-    motor2.setPWM(pid2);
-    }  Serial.print("Velocity 2 ");  
-  Serial.println(sp2);
-  
-  Serial.print("velocity 1 ");
-  Serial.println(sp1);
-
- Serial.println("  ---  --- ");
-//motor1.setPWM(val1);
-//motor2.setPWM(val2);
-
-    // use formula on page 25 of khepera IV manual for speed calculation
-    // need 
-    
-  //  velocity = get_velocity_pid();
-    //motor1.setPWM(pid);
-    //Serial.println(velocity);
-    // put code here for control of the second velocity as well.
-   
-  }  
-=======
     encPrev1=encPrev1+encDiff1;
     encPrev2=encPrev2+encDiff2;
-    // possibly reading enc2.read() may result in LONGER delay
-    // not checked for issues.
     sp1=(float)encDiff1*9.58186; //(pi*r)/(1500*10ms) r= 91.5/2
     sp2=(float)encDiff2*9.58186;
-    Serial.print("Velocity 2 ");
-    Serial.println(sp2);
-    Serial.print("velocity 1 ");
-    Serial.println(sp1);
-    Serial.println(prevSpeedCheck);
-  }
->>>>>>> origin/master
+    if(pidActive){
+      error1=vel1-sp1;
+      error2=vel2-sp2;
+      sum_error1 += error1;
+      sum_error2 += error2;
+      pid1 = motorParam1.kp*error1+ motorParam1.ki*sum_error1+ motorParam1.kd*(error1-last_error1)/0.01; 
+      pid2 = motorParam2.kp*error2+ motorParam2.ki*sum_error2+ motorParam2.kd*(error2-last_error2)/0.01; 
+      error1=last_error1;
+      error2=last_error2;
+      motor1.setPWM(pid1);
+      motor2.setPWM(pid2);
+    } 
+  /* Serial.print("Velocity 2 ");  
+  Serial.println(sp2);
+  Serial.print("velocity 1 ");
+  Serial.println(sp1);
+  Serial.println("  ---  --- ");
+  */
+  }  
+
 }
 void serialEvent() 
 {
