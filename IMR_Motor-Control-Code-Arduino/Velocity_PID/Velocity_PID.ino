@@ -34,8 +34,8 @@ Encoder enc1(2, 4);
 Encoder enc2(3, 5); 
 
 #include "MusafirMotor.h"
-MusafirMotor motor1(13, 12, 10);
-MusafirMotor motor2(7, 6, 9);
+MusafirMotor motor2(13, 12, 10);
+MusafirMotor motor1(7, 6, 9);
 
 String inputString = "";         // a string to hold incoming data
 boolean stringComplete = false;  // whether the string is complete
@@ -61,6 +61,14 @@ int vel1 = 0, vel2 = 0;
 const int wheel_diameter = 91.5;    //milimeters
 const float wheel_radius = wheel_diameter/2.0;
 const float circumference = (float)wheel_radius*M_PI;   //S=pi*r
+
+
+boolean pidActive= false;
+float error1 = 0, sum_error1 = 0, last_error1 = 0; 
+float error2 = 0, sum_error2 = 0, last_error2 = 0; 
+float pid1 = 0;  //  pid computation result
+float pid2 = 0;
+
 
 void setup() 
 {
@@ -157,6 +165,7 @@ void loop() {
           Serial.println(vel2);
         }         
         Serial.println('d');
+        pidActive= true;
         break;
       case 'H':
         // COMMAND:  H,P,I,D,1/2\n
@@ -205,6 +214,7 @@ void loop() {
         else         motor1.setDir(FORWARD);
         if(val2<0) { motor2.setDir(BACKWARD); val2 = -val2; }
         else         motor2.setDir(FORWARD);
+        pidActive= false;
         motor1.setPWM(val1);
         motor2.setPWM(val2);
         if(DEBUG){
@@ -253,7 +263,7 @@ void loop() {
           Serial.print("Max: ");
           Serial.println(max_pwm);
           Serial.print("Min: ");
-          Serial.println(min_PWM);
+          Serial.println(min_pwm);
         }
         Serial.println('m');
         break;
@@ -270,16 +280,33 @@ void loop() {
     encDiff2=enc2.read()-encPrev2;
     encPrev1=encPrev1+encDiff1;
     encPrev2=encPrev2+encDiff2;
-    // possibly reading enc2.read() may result in LONGER delay
-    // not checked for issues.
     sp1=(float)encDiff1*9.58186; //(pi*r)/(1500*10ms) r= 91.5/2
     sp2=(float)encDiff2*9.58186;
-    Serial.print("Velocity 2 ");
-    Serial.println(sp2);
-    Serial.print("velocity 1 ");
-    Serial.println(sp1);
-    Serial.println(prevSpeedCheck);
-  }
+    if(pidActive){
+    error1=vel1-sp1;
+    error2=vel2-sp2;
+    sum_error1 += error1;
+    sum_error2 += error2;
+    pid1 = (motorParam1.kp*error1)+ (motorParam1.ki*sum_error1)+ (motorParam1.kd*(error1-last_error1))/0.01; 
+    pid2 = (motorParam2.kp*error2)+ (motorParam2.ki*sum_error2)+ (motorParam2.kd*(error2-last_error2))/0.01; 
+   Serial.println("xxxxxx");
+   Serial.println(pid1);
+   Serial.println(pid2);
+    error1=last_error1;
+    error2=last_error2;
+    pid1=constrain(pid1,0,250);
+    //pid2=constrain(pid2,0,250);
+    motor1.setPWM(pid1);
+    motor2.setPWM(pid2);
+    } 
+ Serial.print("Velocity 2 ");  
+  Serial.println(sp2);
+  Serial.print("velocity 1 ");
+  Serial.println(sp1);
+  Serial.println("  ---  --- ");
+  Serial.println(prevSpeedCheck);
+  }  
+
 }
 void serialEvent() 
 {
