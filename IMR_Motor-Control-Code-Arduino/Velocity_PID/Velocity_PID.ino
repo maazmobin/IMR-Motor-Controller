@@ -34,8 +34,8 @@ Encoder enc1(2, 4);
 Encoder enc2(3, 5); 
 
 #include "MusafirMotor.h"
-MusafirMotor motor1(13, 12, 10);
-MusafirMotor motor2(7, 6, 9);
+MusafirMotor motor2(13, 12, 10);
+MusafirMotor motor1(7, 6, 9);
 
 String inputString = "";         // a string to hold incoming data
 boolean stringComplete = false;  // whether the string is complete
@@ -283,23 +283,28 @@ void loop() {
     sp1=(float)encDiff1*9.58186; //(pi*r)/(1500*10ms) r= 91.5/2
     sp2=(float)encDiff2*9.58186;
     if(pidActive){
-      error1=vel1-sp1;
-      error2=vel2-sp2;
-      sum_error1 += error1;
-      sum_error2 += error2;
-      pid1 = motorParam1.kp*error1+ motorParam1.ki*sum_error1+ motorParam1.kd*(error1-last_error1)/0.01; 
-      pid2 = motorParam2.kp*error2+ motorParam2.ki*sum_error2+ motorParam2.kd*(error2-last_error2)/0.01; 
-      error1=last_error1;
-      error2=last_error2;
-      motor1.setPWM(pid1);
-      motor2.setPWM(pid2);
+    error1=vel1-sp1;
+    error2=vel2-sp2;
+    sum_error1 += error1;
+    sum_error2 += error2;
+    pid1 = (motorParam1.kp*error1)+ (motorParam1.ki*sum_error1)+ (motorParam1.kd*(error1-last_error1))/0.01; 
+    pid2 = (motorParam2.kp*error2)+ (motorParam2.ki*sum_error2)+ (motorParam2.kd*(error2-last_error2))/0.01; 
+   Serial.println("xxxxxx");
+   Serial.println(pid1);
+   Serial.println(pid2);
+    error1=last_error1;
+    error2=last_error2;
+    pid1=constrain(pid1,0,250);
+    //pid2=constrain(pid2,0,250);
+    motor1.setPWM(pid1);
+    motor2.setPWM(pid2);
     } 
-  /* Serial.print("Velocity 2 ");  
+ Serial.print("Velocity 2 ");  
   Serial.println(sp2);
   Serial.print("velocity 1 ");
   Serial.println(sp1);
   Serial.println("  ---  --- ");
-  */
+  Serial.println(prevSpeedCheck);
   }  
 
 }
