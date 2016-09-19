@@ -276,8 +276,8 @@ void loop() {
   if (currentMillis - prevSpeedCheck >= speedInterval) {
     prevSpeedCheck = currentMillis;
     int sp1,sp2;
-    encDiff1=enc1.read()-encPrev1;
-    encDiff2=enc2.read()-encPrev2;
+    encDiff1=abs(enc1.read())-encPrev1;
+    encDiff2=abs(enc2.read())-encPrev2;
     encPrev1=encPrev1+encDiff1;
     encPrev2=encPrev2+encDiff2;
     sp1=(float)encDiff1*9.58186; //(pi*r)/(1500*10ms) r= 91.5/2
@@ -289,22 +289,20 @@ void loop() {
     sum_error2 += error2;
     pid1 = (motorParam1.kp*error1)+ (motorParam1.ki*sum_error1)+ (motorParam1.kd*(error1-last_error1))/0.01; 
     pid2 = (motorParam2.kp*error2)+ (motorParam2.ki*sum_error2)+ (motorParam2.kd*(error2-last_error2))/0.01; 
-   Serial.println("xxxxxx");
-   Serial.println(pid1);
-   Serial.println(pid2);
     error1=last_error1;
     error2=last_error2;
     pid1=constrain(pid1,0,250);
-    //pid2=constrain(pid2,0,250);
+    pid2=constrain(pid2,0,250);
     motor1.setPWM(pid1);
     motor2.setPWM(pid2);
     } 
- Serial.print("Velocity 2 ");  
-  Serial.println(sp2);
-  Serial.print("velocity 1 ");
-  Serial.println(sp1);
-  Serial.println("  ---  --- ");
-  Serial.println(prevSpeedCheck);
+    Serial.println("  ---  --- ");
+    Serial.print("Velocity 2 ");  
+    Serial.println(sp2);
+    Serial.print("velocity 1 ");
+    Serial.println(sp1);
+  
+
   }  
 
 }
