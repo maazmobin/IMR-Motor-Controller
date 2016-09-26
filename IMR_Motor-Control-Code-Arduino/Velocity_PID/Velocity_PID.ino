@@ -42,7 +42,7 @@ boolean stringComplete = false;  // whether the string is complete
 unsigned long prevSpeedCheck = 0;
 const long speedInterval = 10;    //10ms
 
-#define DEBUG 1
+#define DEBUG 0
 #define MAGICADDRESS 42         // randomly defined eeprom 42 address
 
 struct motorParams {
@@ -195,13 +195,16 @@ void loop() {
           EEPROM.put((const int)(MAGICADDRESS+sizeof(motorParams)), motorParam2);
           if(DEBUG) Serial.println("MotorParam2 ");
         }
+       if(DEBUG)
+       { 
         Serial.print("kp: ");
         Serial.println(p);
         Serial.print("ki: ");
         Serial.println(i);
         Serial.print("kd: ");
         Serial.println(d);
-        Serial.println('h');
+       }
+       Serial.println('h');
         break;
       case 'L':
         // COMMAND:  L,speed_motor_left,speed_motor_right\n
@@ -267,6 +270,31 @@ void loop() {
         }
         Serial.println('m');
         break;
+        case 'S':           // Send back the motor pid
+        // COMMAND:  S,1/2\n
+        int whichMotor;
+        whichMotor=inputString.substring(2).toInt();
+        if(whichMotor==1)
+        {Serial.print("s,");
+        Serial.print(motorParam1.kp);
+        Serial.print(',');
+        Serial.print(motorParam1.ki);
+        Serial.print(',');
+        Serial.print(motorParam1.kd);
+        Serial.print(",1");
+        Serial.println();
+        }
+        else if(whichMotor==2)
+        {Serial.print("s,");
+        Serial.print(motorParam2.kp);
+        Serial.print(',');
+        Serial.print(motorParam2.ki);
+        Serial.print(',');
+        Serial.print(motorParam2.kd);
+        Serial.print(",2");
+        Serial.println();
+        }
+        break;
     }
     inputString = "";
     stringComplete = false;
@@ -296,12 +324,12 @@ void loop() {
     motor1.setPWM(pid1);
     motor2.setPWM(pid2);
     } 
-    Serial.println("  ---  --- ");
+ /*   Serial.println("  ---  --- ");
     Serial.print("Velocity 2 ");  
     Serial.println(sp2);
     Serial.print("velocity 1 ");
     Serial.println(sp1);
-  
+  */
 
   }  
 
