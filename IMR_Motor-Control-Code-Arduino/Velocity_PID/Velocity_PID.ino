@@ -228,10 +228,10 @@ void loop() {
         break;
       case 'R':
         // COMMAND:  R\n
-        Serial.print("r,");
-        Serial.print(enc1.read());
-        Serial.print(',');
-        Serial.print(enc2.read());
+        Serial.print("r,"+(String)enc1.read()+","+(String)enc2.read());
+        //Serial.print(enc1.read());
+        //Serial.print(',');
+        //Serial.print(enc2.read());
         Serial.println();
         break;
       case 'I':
