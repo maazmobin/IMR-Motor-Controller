@@ -308,8 +308,8 @@ void loop() {
     encDiff2=abs(enc2.read())-encPrev2;
     encPrev1=encPrev1+encDiff1;
     encPrev2=encPrev2+encDiff2;
-    sp1=(float)encDiff1*9.58186; //(pi*r)/(1500*10ms) r= 91.5/2
-    sp2=(float)encDiff2*9.58186;
+    sp1=abs((float)encDiff1*9.58186); //(pi*r)/(1500*10ms) r= 91.5/2
+    sp2=abs((float)encDiff2*9.58186);
     if(pidActive){
     error1=vel1-sp1;
     error2=vel2-sp2;
@@ -324,7 +324,7 @@ void loop() {
     motor1.setPWM(pid1);
     motor2.setPWM(pid2);
     } 
- /*   Serial.println("  ---  --- ");
+ /* Serial.println("  ---  --- ");
     Serial.print("Velocity 2 ");  
     Serial.println(sp2);
     Serial.print("velocity 1 ");
