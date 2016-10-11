@@ -72,6 +72,7 @@ float pid2 = 0;
 
 void setup() 
 {
+
   inputString.reserve(100);
   Serial.begin(115200);
   enc1.write(0);
@@ -315,15 +316,26 @@ void loop() {
     error2=vel2-sp2;
     sum_error1 += error1;
     sum_error2 += error2;
-    pid1 = (motorParam1.kp*error1)+ (motorParam1.ki*sum_error1)+ (motorParam1.kd*(error1-last_error1))/0.01; 
-    pid2 = (motorParam2.kp*error2)+ (motorParam2.ki*sum_error2)+ (motorParam2.kd*(error2-last_error2))/0.01; 
+   // Serial.println(error2);
+    if(error1>=0)
+    { pid1 = (motorParam1.kp*error1)+ (motorParam1.ki*sum_error1)+ (motorParam1.kd*abs(error1-last_error1))/0.01;}
+    else
+    { pid1 = (motorParam1.kp*error1)+ (motorParam1.ki*sum_error1)- (motorParam1.kd*abs(error1-last_error1))/0.01;}
+    
+    if(error2>=0)
+    {pid2 = (motorParam2.kp*error2)+ (motorParam2.ki*sum_error2)+ (motorParam2.kd*abs(error2-last_error2))/0.01; }
+    else
+    {pid2 = (motorParam2.kp*error2)+ (motorParam2.ki*sum_error2)- (motorParam2.kd*abs(error2-last_error2))/0.01; }
+    //pid1 = (motorParam1.kp*error1)+ (motorParam1.ki*sum_error1)+ (motorParam1.kd*(error1-last_error1))/0.01;
+    //pid2 = (motorParam2.kp*error2)+ (motorParam2.ki*sum_error2)+ (motorParam2.kd*(error2-last_error2))/0.01;
     error1=last_error1;
     error2=last_error2;
-    pid1=constrain(pid1,0,250);
-    pid2=constrain(pid2,0,250);
+    pid1=constrain(pid1,motorParam1.minPWM,motorParam1.maxPWM);
+    pid2=constrain(pid2,motorParam2.minPWM,motorParam2.maxPWM);
+  // Serial.println(pid2);
     motor1.setPWM(pid1);
     motor2.setPWM(pid2);
-    } 
+    }      
  /* Serial.println("  ---  --- ");
     Serial.print("Velocity 2 ");  
     Serial.println(sp2);
